@@ -76,6 +76,22 @@ def load_config(config_file):
         return None
 
 
+def _credential_hits(line, credentials):
+    # Whole-token matching, not substring matching. The substring
+    # version flagged the word "test" inside "latest" on an ordinary
+    # line, and flagged a "db_password" key name as a password value.
+    # Config values sit next to =, : or whitespace, so token edges
+    # are the right test for this file shape.
+    hits = []
+    lowered = line.lower()
+    for credential_type, credential_values in credentials.items():
+        for credential in credential_values:
+            pattern = r"(?<![A-Za-z0-9_])" + re.escape(credential.lower()) + r"(?![A-Za-z0-9_])"
+            if re.search(pattern, lowered):
+                hits.append((credential_type, credential))
+    return hits
+
+
 def check_file_for_credentials(file_path, credentials, regex_patterns):
     """
     Checks a file for default/weak credentials.
@@ -92,16 +108,14 @@ def check_file_for_credentials(file_path, credentials, regex_patterns):
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line_number, line in enumerate(f, 1):
-                for credential_type, credential_values in credentials.items():
-                    for credential in credential_values:
-                        if credential in line.lower():
-                            findings.append(
-                                f"File: {file_path}, Line: {line_number}, Credential Type: {credential_type}, Value: {credential.strip()}, Line Content: {line.strip()}"
-                            )
+                for credential_type, credential in _credential_hits(line, credentials):
+                    findings.append(
+                        f"File: {file_path}, Line: {line_number}, Credential Type: {credential_type}, Value: {credential.strip()}, Line Content: {line.strip()}"
+                    )
                 for regex in regex_patterns:
-                    if re.search(regex, line, re.IGNORECASE):
+                    if regex.search(line):
                         findings.append(
-                            f"File: {file_path}, Line: {line_number}, Regex Match: {regex}, Line Content: {line.strip()}"
+                            f"File: {file_path}, Line: {line_number}, Regex Match: {regex.pattern}, Line Content: {line.strip()}"
                         )
     except FileNotFoundError:
         logging.warning(f"File not found: {file_path}")
@@ -125,15 +139,13 @@ def check_process_for_credentials(process_name, credentials, regex_patterns):
     for proc in psutil.process_iter(['name', 'cmdline']):
         if proc.info['name'] == process_name:
             try:
-                cmdline = ' '.join(proc.info['cmdline'])
-                for credential_type, credential_values in credentials.items():
-                    for credential in credential_values:
-                        if credential in cmdline.lower():
-                            findings.append(f"Process: {process_name}, Credential Type: {credential_type}, Value: {credential.strip()}, Command Line: {cmdline.strip()}")
+                cmdline = ' '.join(proc.info['cmdline'] or [])
+                for credential_type, credential in _credential_hits(cmdline, credentials):
+                    findings.append(f"Process: {process_name}, Credential Type: {credential_type}, Value: {credential.strip()}, Command Line: {cmdline.strip()}")
 
                 for regex in regex_patterns:
-                    if re.search(regex, cmdline, re.IGNORECASE):
-                        findings.append(f"Process: {process_name}, Regex Match: {regex}, Command Line: {cmdline.strip()}")
+                    if regex.search(cmdline):
+                        findings.append(f"Process: {process_name}, Regex Match: {regex.pattern}, Command Line: {cmdline.strip()}")
 
             except psutil.AccessDenied:
                 logging.warning(f"Access denied when trying to read command line for process: {process_name}")
@@ -160,15 +172,30 @@ def main():
     files_to_check = config.get("files", [])
     processes_to_check = config.get("processes", [])
     custom_credentials = config.get("credentials", {})
-    regex_patterns = config.get("regex", [])
+    raw_patterns = config.get("regex", [])
 
-    # Merge default credentials with custom credentials, if provided
-    merged_credentials = DEFAULT_CREDENTIALS.copy()
+    # Compile the custom patterns once, before any scanning. Compiled
+    # per line, an invalid pattern raised inside the per-file loop,
+    # aborted that file at its first line, and the run then reported
+    # "no exposures" for a file it had barely opened.
+    regex_patterns = []
+    for pattern in raw_patterns:
+        try:
+            regex_patterns.append(re.compile(pattern, re.IGNORECASE))
+        except re.error as e:
+            logging.error(f"Invalid regex in configuration: {pattern!r}: {e}")
+            sys.exit(1)
+
+    # Merge default credentials with custom credentials, if provided.
+    # Copy the lists, not just the dict: a shallow copy shares the
+    # default lists, and extend() would then mutate the module level
+    # defaults for every later call in the same process.
+    merged_credentials = {key: list(values) for key, values in DEFAULT_CREDENTIALS.items()}
     for cred_type, cred_values in custom_credentials.items():
         if cred_type in merged_credentials:
             merged_credentials[cred_type].extend(cred_values)
         else:
-            merged_credentials[cred_type] = cred_values
+            merged_credentials[cred_type] = list(cred_values)
 
     all_findings = []
 
