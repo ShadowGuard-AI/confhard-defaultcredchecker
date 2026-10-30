@@ -198,10 +198,16 @@ def main():
             merged_credentials[cred_type] = list(cred_values)
 
     all_findings = []
+    scan_failed = False
 
     # Check files
     for file_path in files_to_check:
         logging.info(f"Checking file: {file_path}")
+        if not os.path.isfile(file_path):
+            # A configured file that is not there was never scanned.
+            # It used to be a warning under a "no exposures" result
+            # and exit 0, so a mistyped path passed as a clean check.
+            scan_failed = True
         findings = check_file_for_credentials(file_path, merged_credentials, regex_patterns)
         all_findings.extend(findings)
 
@@ -217,6 +223,10 @@ def main():
             print(finding)
     else:
         print("No potential credential exposures found.")
+
+    if scan_failed:
+        logging.error("One or more configured files could not be checked.")
+        sys.exit(1)
 
     if all_findings:
         sys.exit(1)  # Exit with an error code if findings were found
