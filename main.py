@@ -92,6 +92,42 @@ def _credential_hits(line, credentials):
     return hits
 
 
+def _mask_value_tokens(text, keep_values=()):
+    """Mask value shaped tokens in a line before it is printed.
+
+    The matched default credential itself is public dictionary
+    material and stays visible in the Value field. Anything else
+    that sits in a value position (after an = or : sign, inside
+    quotes, or after a password style flag on a command line) is
+    replaced with ***, because a non-default password sharing the
+    line used to print in clear, once per hit.
+    """
+    keep = {str(value).lower() for value in keep_values}
+
+    def _mask_token(token):
+        return token if token.lower() in keep else "***"
+
+    def _after_sign(match):
+        prefix, quote, token = match.group(1), match.group(2) or "", match.group(3)
+        return f"{prefix}{quote}{_mask_token(token)}{quote}"
+
+    masked = re.sub(r"([=:]\s*)([\"']?)([^\s\"',;]+)\2", _after_sign, text)
+
+    def _quoted(match):
+        quote, token = match.group(1), match.group(2)
+        return f"{quote}{_mask_token(token)}{quote}"
+
+    masked = re.sub(r"([\"'])([^\s\"']+)\1", _quoted, masked)
+
+    def _after_flag(match):
+        return f"{match.group(1)} ***"
+
+    masked = re.sub(
+        r"((?:--?(?:password|passwd|pwd|secret|token|api[-_]?key))\s+)[^\s]+",
+        _after_flag, masked, flags=re.IGNORECASE)
+    return masked
+
+
 def check_file_for_credentials(file_path, credentials, regex_patterns):
     """
     Checks a file for default/weak credentials.
@@ -110,12 +146,12 @@ def check_file_for_credentials(file_path, credentials, regex_patterns):
             for line_number, line in enumerate(f, 1):
                 for credential_type, credential in _credential_hits(line, credentials):
                     findings.append(
-                        f"File: {file_path}, Line: {line_number}, Credential Type: {credential_type}, Value: {credential.strip()}, Line Content: {line.strip()}"
+                        f"File: {file_path}, Line: {line_number}, Credential Type: {credential_type}, Value: {credential.strip()}, Line Content: {_mask_value_tokens(line.strip(), keep_values=[credential])}"
                     )
                 for regex in regex_patterns:
                     if regex.search(line):
                         findings.append(
-                            f"File: {file_path}, Line: {line_number}, Regex Match: {regex.pattern}, Line Content: {line.strip()}"
+                            f"File: {file_path}, Line: {line_number}, Regex Match: {regex.pattern}, Line Content: {_mask_value_tokens(line.strip())}"
                         )
     except FileNotFoundError:
         logging.warning(f"File not found: {file_path}")
@@ -141,11 +177,11 @@ def check_process_for_credentials(process_name, credentials, regex_patterns):
             try:
                 cmdline = ' '.join(proc.info['cmdline'] or [])
                 for credential_type, credential in _credential_hits(cmdline, credentials):
-                    findings.append(f"Process: {process_name}, Credential Type: {credential_type}, Value: {credential.strip()}, Command Line: {cmdline.strip()}")
+                    findings.append(f"Process: {process_name}, Credential Type: {credential_type}, Value: {credential.strip()}, Command Line: {_mask_value_tokens(cmdline.strip(), keep_values=[credential])}")
 
                 for regex in regex_patterns:
                     if regex.search(cmdline):
-                        findings.append(f"Process: {process_name}, Regex Match: {regex.pattern}, Command Line: {cmdline.strip()}")
+                        findings.append(f"Process: {process_name}, Regex Match: {regex.pattern}, Command Line: {_mask_value_tokens(cmdline.strip())}")
 
             except psutil.AccessDenied:
                 logging.warning(f"Access denied when trying to read command line for process: {process_name}")
