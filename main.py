@@ -142,6 +142,9 @@ def check_file_for_credentials(file_path, credentials, regex_patterns):
     """
     findings = []
     try:
+        # I drop undecodable bytes instead of failing the file. A
+        # binary that holds a readable credential line still gets
+        # scanned, at the cost of lines that lose characters quietly.
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line_number, line in enumerate(f, 1):
                 for credential_type, credential in _credential_hits(line, credentials):
@@ -173,6 +176,9 @@ def check_process_for_credentials(process_name, credentials, regex_patterns):
 
     findings = []
     for proc in psutil.process_iter(['name', 'cmdline']):
+        # I match the process name exactly, case included. A config
+        # entry for a service whose process runs under a different
+        # capitalisation is silently never checked.
         if proc.info['name'] == process_name:
             try:
                 cmdline = ' '.join(proc.info['cmdline'] or [])
@@ -244,6 +250,9 @@ def main():
             # It used to be a warning under a "no exposures" result
             # and exit 0, so a mistyped path passed as a clean check.
             scan_failed = True
+        # I still call the checker for a path I just marked failed.
+        # It returns nothing for a missing file, so the only effect
+        # is the log line inside it, and the exit below carries it.
         findings = check_file_for_credentials(file_path, merged_credentials, regex_patterns)
         all_findings.extend(findings)
 
