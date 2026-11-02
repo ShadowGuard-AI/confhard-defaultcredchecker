@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-label="A mud volcano seep field in three bands: the trench edge and dark water still in the far band, mud cones in the mid band with bubbles rising in thin columns and fading at the top, and a clam bed in the near band whose shells open a fraction and close while one white crab crosses at walking pace">
+<rect width="1200" height="300" fill="#e0ded2"/>
+<rect x="0" y="0" width="1200" height="70" fill="#1e2c42"/>
+<rect x="0" y="150" width="1200" height="150" fill="#807c72"/>
+<g fill="none" stroke="#cea440" stroke-width="3"><circle cx="330" cy="140" r="8"><animate attributeName="cy" values="150;84" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="5s" repeatCount="indefinite"/></circle><circle cx="620" cy="140" r="8"><animate attributeName="cy" values="150;84" dur="7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="7s" repeatCount="indefinite"/></circle><circle cx="900" cy="140" r="8"><animate attributeName="cy" values="150;84" dur="6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="6s" repeatCount="indefinite"/></circle></g>
+<g><polygon points="250,215 410,215 352,140 308,140" fill="#68645c"/><polygon points="540,215 700,215 652,140 598,140" fill="#68645c"/><polygon points="820,215 980,215 932,140 878,140" fill="#68645c"/></g>
+<g><animateTransform attributeName="transform" type="translate" values="-60 0;1240 0" dur="44s" repeatCount="indefinite"/><ellipse cx="0" cy="262" rx="15" ry="8" fill="#eeeee8"/><path d="M-12 266 L-28 276 M12 266 L28 276 M-10 256 L-24 246 M10 256 L24 246" stroke="#eeeee8" stroke-width="3"/></g>
+<g transform="translate(520 258)"><polygon points="-42,16 42,16 0,-24" fill="#c4c0b4"><animateTransform attributeName="transform" type="rotate" values="0; -5; 0" dur="11s" repeatCount="indefinite"/></polygon></g>
+</svg>
