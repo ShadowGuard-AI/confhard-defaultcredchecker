@@ -1,13 +1,49 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>confhard-defaultcredchecker</title>
-<style>@font-face{font-family:Disp;src:url(fonts/BhuTukaExpandedOne.ttf)}@font-face{font-family:Text;src:url(fonts/Bitter.ttf)}
-body{background:#565f78;font-family:Text,serif;color:#22262e;margin:0}main{max-width:920px;margin:0 auto;padding:28px}
-h1,h2{font-family:Disp,sans-serif;color:#26543a}section{background:#d8d4c6;padding:18px 22px;margin:16px 0;border-radius:6px}
-img{max-width:100%}button{background:#26543a;color:#fff;border:2px solid #cea440;padding:10px 14px;margin:4px;border-radius:6px;font-family:Text}
-.flagged{color:#cea440;font-weight:bold}</style></head><body><main>
-<img src="intro-banner.png" alt="Grey mud and a shut clam bed in the foreground, mud cones and rising bubble columns and white crabs in the middle ground, and the trench edge and dark water in the background, with no text, no letters, no wordmark, and no logo"><h1>confhard-defaultcredchecker</h1>
-<p>Theme: Mud Volcano Seep Fields. Headings in BhuTuka Expanded One, running text in Bitter.</p>
-<img src="logo.png" alt="One grey mud cone with a slow bubble above its vent, white crabs around its base, and a clam bed beside it with shells shut, and the name lettered below after the sounding line manner"><img src="banner.png" alt="A seep field on a grey mud slope: mud cones in a loose row, thin bubble columns, white crabs between the cones, clam bed patches, pale bacterial mats, and the title on a flat sounding board at the slope foot">
-<img src="scene.svg" alt="The seep field in three bands: the trench edge still, bubbles rising from the cone vents and fading, clam shells opening a fraction and closing, and one crab crossing the near band at walking pace"><div><button type="button">Check the Named Files</button><button type="button">Check the Named Processes</button><button type="button">Show the Configuration</button><button type="button">Show the Masking Rule</button></div><section><h2>What Counts as a Hit</h2><p>The program checks named files and named running processes for default or weak credentials. It uses a built in dictionary holding two credential types, named username and password, and regular expressions supplied in its configuration. Credential values are never printed as examples on this page; types and behaviours are stated as facts only. Matching is by whole token, not by substring, and case is ignored: a value inside a longer word does not count as a hit, and a key name alone does not count as a value hit. Patterns are compiled once, before scanning starts, and an invalid pattern ends the run at exit 1 before any file is scanned.</p></section><section><h2>The Configuration</h2><p>One option is required: the path to a YAML configuration file, given in short or long form. The schema in the code requires a files list. Processes are optional. A credentials section is optional, with optional username and password lists. A regex list is optional. Custom entries are merged into the built in dictionary by extending copies of its lists; the original lists are not altered for later calls.</p></section><section><h2>Files and Processes</h2><p>Each configured file is read as UTF 8 text, with undecodable bytes dropped rather than failing the file. Each line is tested against the dictionary and against each pattern, and a finding names the file, the line number, the credential type or the pattern, and the line content in masked form. A configured file that does not exist marks the scan as failed and the run ends at exit 1. Processes are found through psutil; the process name must match exactly, case included, the command line is joined into one string and tested in the same way, and access denied on a command line produces a warning and no finding for that process.</p></section><section><h2>What Stays Hidden on a Finding Line</h2><p>A matched dictionary value is public dictionary material and stays visible in the Value field of its own finding. Every other value shaped token on that line is replaced by a mask. Tokens after an equals sign or a colon are masked, quoted tokens are masked, and tokens after password style flags on a command line are masked. A non default secret sharing the line therefore does not print in clear.</p></section><section><h2>How a Run Ends</h2><p>A configuration that cannot be loaded ends the run at exit 1; a missing file, a bad YAML file, and a schema failure all end there. Findings end the run at exit 1, and a failed scan for a missing configured file ends it at exit 1. A clean run with no findings and no failed file ends at exit 0. The verbose option turns on debug logging and changes no result. The repository LICENSE file carries the MIT License; the README licence line differs from it, as recorded in the preserved record below.</p></section>
-<section><h2>Record preserved from the README</h2><p># confhard-DefaultCredChecker</p><p>Checks common configuration files (e.g., `config.ini`, `.env`, common database connection files) and running processes for default or weak credentials. Uses a built-in dictionary of common credentials and regular expressions to identify potential vulnerabilities. Findings name the matched default credential, which is public dictionary material, but the Line Content and Command Line fields are shown with every other value shaped token masked, so a non-default password sharing the line does not print in clear. - Focused on Automates the hardening of system and application configurations based on defined policies. Reads configuration files (e.g., YAML, JSON) and uses predefined rules (e.g., CIS benchmarks) to identify and remediate insecure settings. Provides tools to validate configuration changes and generate reports on compliance. It focuses on automation, not vulnerability detection. It should not alter the system or application without confirmation.</p><p>## Install</p><p>`git clone https://github.com/ShadowStrikeHQ/confhard-defaultcredchecker`</p><p>## Usage</p><p>`./confhard-defaultcredchecker [params]`</p><p>## Parameters</p><p>- `-h`: Show help message and exit</p><p>- `-c`: Path to the YAML configuration file.</p><p>- `-v`: No description provided</p><p>## License</p><p>Copyright (c) ShadowStrikeHQ</p></section>
-<section><h2>Facts from the code, stated in the prose</h2><p>This record names: username and password, YAML, files list, whole token, psutil, UTF 8, masked, exit 1, exit 0, verbose.</p></section>
-</main></body></html>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confhard-defaultcredchecker: The Skeleton Key Ring</title>
+<style>@font-face{font-family:'Megrim';src:url('fonts/Megrim.ttf') format('truetype');font-weight:400;font-style:normal;}@font-face{font-family:'Orienta';src:url('fonts/Orienta.ttf') format('truetype');font-weight:400;font-style:normal;}
+:root{--ground:#1d1a17;--panel:#2c2721;--head:#f2e8d5;--ink:#eae0cb;--accent:#c9973f}
+*{box-sizing:border-box}body{margin:0;background:var(--ground);color:var(--ink);font-family:'Orienta',sans-serif;line-height:1.65}
+h1,h2,h3{font-family:'Megrim',serif;color:var(--head)}
+.hero img.heroimg{width:100%;height:52vh;object-fit:cover;display:block}
+.hero .in,main,footer{max-width:1120px;margin:0 auto;padding:1rem 6vw 2rem}.logo{width:210px}
+nav{display:flex;gap:1rem;flex-wrap:wrap;margin:1.2rem 0}
+.btn{display:inline-block;text-decoration:none;font-family:'Megrim',serif;color:var(--head);background:var(--panel);border:2px solid var(--accent);border-radius:10px;padding:.6rem 1.1rem}
+.btn:hover{border-color:var(--head)}.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--head)}.panel{background:var(--panel);color:var(--ink);padding:.4rem 1.5rem 1.3rem;margin:1.8rem 0;border-radius:6px}
+pre{background:#131110;color:var(--ink);padding:1rem;overflow-x:auto;white-space:pre-wrap}
+.flag{border-left:5px solid var(--accent);background:rgba(0,0,0,.18);padding:.6rem 1rem}
+img.rule{width:100%;height:120px;object-fit:cover;display:block}img.diag{max-width:100%}
+code{font-family:inherit;background:rgba(0,0,0,.25);padding:0 .3rem;border-radius:3px}</style>
+</head>
+<body>
+<header class="hero"><img class="heroimg" src="intro-banner.png" alt="One skeleton key turned in the lock of a panelled oak door close up, the rest of the bunch soft behind in the hand, candle warm light on iron and brass">
+<div class="in"><img class="logo" src="logo.png" alt="One heavy iron ring of old skeleton keys with varied bits hanging against a plain oak door, brass and iron keys overlapping in a bunch">
+<h1>confhard-defaultcredchecker</h1>
+<p>A short bunch of standard keys, tried one by one, as a whole key, against every lock it is handed.</p>
+<nav><a class="btn" href="#config">Configuration</a><a class="btn" href="#matching">Matching</a><a class="btn" href="#masking">Findings and masking</a><a class="btn" href="#exits">Exit codes</a></nav></div></header>
+<main>
+<img class="rule" src="banner.png" alt="A hand working through a heavy ring of skeleton keys at a panelled oak door in a dim hall, one key turned in the lock and the rest of the bunch waiting in the fist, candle warm light on iron and brass">
+<section class="panel"><h2>What the checker does</h2>
+<p>The tool hunts configuration files and running processes for credentials left at their factory defaults, run as <code>python3 main.py -c CONFIG [-v]</code>. The YAML configuration file is required and is the only way in. It is validated against a schema before anything is scanned: a files list is required, and processes, credentials, and regex lists are optional additions. Invalid config regexes are compiled once up front, and an invalid one exits 1 before any file is scanned.</p></section><section class="panel"><h2>The built in dictionary</h2>
+<p>The built in dictionary is small and exact: the usernames admin, user, root, and test, and the passwords password, 123456, admin, test, password123, and changeme. Configuration credentials extend it.</p></section><section class="panel" id="matching"><h2>Matching</h2>
+<p class="flag">File matching is whole-token and case-insensitive, so a dictionary word inside a longer word does not flag. Process matching is the opposite: exact-name and case-sensitive via psutil, so a service listed under a different capitalisation is silently never checked.</p>
+<p>Files are read with undecodable bytes dropped rather than failing, so a binary holding one readable credential line still gets scanned with characters quietly lost. A configured file that does not exist marks the whole scan failed and the run exits 1.</p></section><section class="panel" id="masking"><h2>Findings and masking</h2>
+<p>In a finding, the matched dictionary value stays visible in the Value field as public dictionary material, while every other value shaped token on the line is masked, so a non-default credential sharing the line does not print in clear.</p></section><section class="panel"><h2>Parameters</h2>
+<ul>
+<li><code>-c</code>, <code>--config</code>: path to the YAML configuration file. Required.</li>
+<li><code>-v</code>: verbose output.</li>
+</ul>
+<p>The README parameter list describes -c but leaves -v undescribed, though the code help text describes it. That record stands as printed.</p></section><section class="panel" id="exits"><h2>Exit codes</h2>
+<p>Findings exit 1 and a clean scan exits 0. A missing configured file, a failed scan, or an invalid custom pattern also ends the run at exit 1, the pattern case before any file is scanned.</p></section><section class="panel"><h2>Record notes</h2>
+<p>The README clone line names the stale ShadowStrikeHQ organisation, its usage line is a placeholder, and its closing licence line reads Copyright (c) ShadowStrikeHQ while the LICENSE file is MIT. The README body also carries a boilerplate paragraph about automating configuration hardening and CIS remediation that belongs to a different tool family and contradicts the checker on the same page. Those lines stand as printed.</p></section>
+
+<section class="panel"><h2>Licence</h2>
+<p>The repository LICENSE file carries the MIT License.</p></section>
+</main>
+<footer><p>The Skeleton Key Ring. Headings in Megrim, text in Orienta, both under the SIL Open Font License 1.1.</p></footer>
+</body>
+</html>

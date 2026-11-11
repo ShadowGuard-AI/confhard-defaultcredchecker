@@ -1,12 +1,12 @@
-![Grey mud and a shut clam bed in the foreground, mud cones and rising bubble columns and white crabs in the middle ground, and the trench edge and dark water in the background, with no text, no letters, no wordmark, and no logo](intro-banner.png)
+![One skeleton key turned in the lock of a panelled oak door close up, the rest of the bunch soft behind in the hand, candle warm light on iron and brass](intro-banner.png)
 
 # confhard-DefaultCredChecker
 
 Title block: the name above is set in BhuTuka Expanded One in deep green on a pale mud plate, as a depth marker on a sounding line. The cone mark below stands beside this first heading only. No credential value appears anywhere in this document; credential type names and behaviours only.
 
-![One grey mud cone with a slow bubble above its vent, white crabs around its base, and a clam bed beside it with shells shut, and the name lettered below after the sounding line manner](logo.png)
+![One heavy iron ring of old skeleton keys with varied bits hanging against a plain oak door, brass and iron keys overlapping in a bunch](logo.png)
 
-![A seep field on a grey mud slope: mud cones in a loose row, thin bubble columns, white crabs between the cones, clam bed patches, pale bacterial mats, and the title on a flat sounding board at the slope foot](banner.png)
+![A hand working through a heavy ring of skeleton keys at a panelled oak door in a dim hall, one key turned in the lock and the rest of the bunch waiting in the fist, candle warm light on iron and brass](banner.png)
 
 ![The seep field in three bands: the trench edge still, bubbles rising from the cone vents and fading, clam shells opening a fraction and closing, and one crab crossing the near band at walking pace](scene.svg)
 
